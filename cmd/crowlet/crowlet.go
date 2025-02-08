@@ -71,6 +71,10 @@ func main() {
 			Name:  "crawl-hyperlinks",
 			Usage: "follow and test hyperlinks ('a' tags href)",
 		},
+		 cli.StringFlag{
+		        Name:  "header",
+		        Usage: "Custom header to add to HTTP requests, in the format 'Key: Value'",
+		},
 		cli.BoolFlag{
 			Name:  "crawl-images",
 			Usage: "follow and test image links ('img' tags src)",
@@ -226,6 +230,7 @@ func start(c *cli.Context) error {
 			User:    c.String("user"),
 			Pass:    c.String("pass"),
 			Timeout: time.Duration(c.Int("timeout")) * time.Millisecond,
+			CustomHeader: c.String("header"),
 		},
 		HTTPGetter: &crawler.BaseConcurrentHTTPGetter{
 			Get: crawler.HTTPGet,
