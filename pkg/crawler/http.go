@@ -24,10 +24,11 @@ type HTTPResponse struct {
 
 // HTTPConfig hold settings used to get pages via HTTP/S
 type HTTPConfig struct {
-	User       string
-	Pass       string
-	Timeout    time.Duration
-	ParseLinks bool
+	User         string
+	Pass         string
+	Timeout      time.Duration
+	ParseLinks   bool
+	CustomHeader string // New field: set this to a string in the format "Key: Value"
 }
 
 // HTTPGetter performs a single HTTP/S  to the url, and return information
@@ -49,9 +50,21 @@ func createRequest(url string) (*http.Request, *httpstat.Result, error) {
 	return req, result, nil
 }
 
+import "strings" // add this import if it's not already present
+
 func configureRequest(req *http.Request, config HTTPConfig) {
 	if len(config.User) > 0 {
 		req.SetBasicAuth(config.User, config.Pass)
+	}
+	if len(config.CustomHeader) > 0 {
+		parts := strings.SplitN(config.CustomHeader, ":", 2)
+		if len(parts) == 2 {
+			key := strings.TrimSpace(parts[0])
+			value := strings.TrimSpace(parts[1])
+			req.Header.Add(key, value)
+		} else {
+			log.Warn("Invalid custom header format, expected 'Key: Value'")
+		}
 	}
 }
 
