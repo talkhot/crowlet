@@ -4,6 +4,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 	"sync"
 	"time"
 
@@ -22,7 +23,7 @@ type HTTPResponse struct {
 	Links      []Link
 }
 
-// HTTPConfig hold settings used to get pages via HTTP/S
+// HTTPConfig holds settings used to get pages via HTTP/S
 type HTTPConfig struct {
 	User         string
 	Pass         string
@@ -31,7 +32,7 @@ type HTTPConfig struct {
 	CustomHeader string // New field: set this to a string in the format "Key: Value"
 }
 
-// HTTPGetter performs a single HTTP/S  to the url, and return information
+// HTTPGetter performs a single HTTP/S request to the URL and returns information
 // related to the result as an HTTPResponse
 type HTTPGetter func(client *http.Client, url string, config HTTPConfig) (response *HTTPResponse)
 
@@ -49,8 +50,6 @@ func createRequest(url string) (*http.Request, *httpstat.Result, error) {
 
 	return req, result, nil
 }
-
-import "strings" // add this import if it's not already present
 
 func configureRequest(req *http.Request, config HTTPConfig) {
 	if len(config.User) > 0 {
@@ -138,7 +137,7 @@ type BaseConcurrentHTTPGetter struct {
 	Get HTTPGetter
 }
 
-// ConcurrentHTTPGet will GET the urls passed and result the results of the crawling
+// ConcurrentHTTPGet will GET the URLs passed and return the results of the crawling
 func (getter *BaseConcurrentHTTPGetter) ConcurrentHTTPGet(urls []string, config HTTPConfig,
 	maxConcurrent int, quit <-chan struct{}) <-chan *HTTPResponse {
 
@@ -150,7 +149,7 @@ func (getter *BaseConcurrentHTTPGetter) ConcurrentHTTPGet(urls []string, config 
 }
 
 // RunConcurrentGet runs multiple HTTP requests in parallel, and returns the
-// result in resultChan
+// results in resultChan
 func RunConcurrentGet(httpGet HTTPGetter, urls []string, config HTTPConfig,
 	maxConcurrent int, resultChan chan<- *HTTPResponse, quit <-chan struct{}) {
 
